@@ -17,17 +17,20 @@ import java.util.TreeMap;
  */
 
 public class Card {
+
     public static LinkedList<Integer> CardSet;
+
     int number;
     int color;
     int fill;  // 0 : FILL ; 1 : STROKE ; 2 : HATCH
     int shape;  // 0 : RECT ; 1 : OVAL ; 2 : RHOMBUS
+
     public static void init(){
         CardSet.clear();
-        HashMap<Integer,Integer> temp=new HashMap<Integer, Integer>();
-        Random rand=new Random();
-        for(int i=0;i<81;i++){
-            temp.put(rand.nextInt(),i);
+        HashMap<Integer,Integer> temp = new HashMap<Integer, Integer>();
+        Random rand = new Random();
+        for(int i = 0 ; i < 81 ; i++){
+            temp.put(rand.nextInt(), i);
         }
         Map<Integer,Integer> sort=new TreeMap<Integer, Integer>(temp);
         Set set=sort.entrySet();

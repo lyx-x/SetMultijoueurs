@@ -21,10 +21,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         layout = (TableLayout) findViewById(R.id.Table);
-        CardView cardView = (CardView) findViewById(R.id.Card01);
-        cardView.setCard();
-        cardView.invalidate();
-        System.out.println(layout.getChildCount());
+        CardView cardView;
         for (int i = 0 ; i < layout.getChildCount() ; i++)
         {
             TableRow row = (TableRow) layout.getChildAt(i);
@@ -33,9 +30,6 @@ public class MainActivity extends Activity {
                 cardView = (CardView) row.getChildAt(j);
                 cardView.setCard(new Card(1, 2, 0, 2));
                 cardView.invalidate();
-                cardView.mask(Color.YELLOW);
-
-                cardView.setBackgroundColor(Color.RED);
             }
         }
         //layout.addView(cardView, new GridLayout.LayoutParams(row1, col1));

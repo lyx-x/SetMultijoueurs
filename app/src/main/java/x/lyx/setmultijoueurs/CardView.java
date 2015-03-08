@@ -15,23 +15,27 @@ import android.view.View;
 /**
  * Created by lyx on 26/02/15.
  */
-public class CardView extends View {
+public class CardView extends View{
 
     private Card card;
     private Paint paint;
     private int[] colors = new int[] {Color.RED, Color.GREEN, Color.BLUE};
     private boolean correct;
-    private boolean chosen;
+    private boolean chosen = false;
+    private boolean judged;
 
-    public CardView (Context context, AttributeSet attrs, Card c)
-    {
-        super(context, attrs);
-        this.card = c;
-    }
+    private OnClickListener chose = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            ((CardView)v).switchChoice();
+            v.invalidate();
+        }
+    };
 
     public CardView (Context context, AttributeSet attrs)
     {
         super(context, attrs);
+        this.setOnClickListener(chose);
     }
 
     public void setCard (Card c)
@@ -39,10 +43,15 @@ public class CardView extends View {
         this.card = c;
     }
 
-    public void setMask (boolean c)
+    public void setJudgment (boolean c)
     {
-        chosen = true;
+        judged = true;
         this.correct = c;
+    }
+
+    public void switchChoice ()
+    {
+        chosen = !chosen;
     }
 
     void drawRhombus(RectF rect, Paint p, Canvas c){
@@ -116,16 +125,24 @@ public class CardView extends View {
                     }
                 }
             }
-            if (chosen)
-            {
+            if (judged) {
                 if (correct)
                 {
-
+                    this.setBackgroundColor(Color.GREEN);
+                    mask(Color.GREEN, canvas);
                 }
                 else
                 {
-
+                    this.setBackgroundColor(Color.RED);
+                    mask(Color.RED, canvas);
                 }
+            }
+            else
+            {
+                if (chosen)
+                    this.setBackgroundColor(Color.BLUE);
+                else
+                    this.setBackgroundColor(Color.WHITE);
             }
         }
         else
@@ -139,10 +156,14 @@ public class CardView extends View {
 
     }
 
-    public void mask (int c, Canvas canvas){
+    void mask (int color, Canvas canvas){
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setARGB(50, 255, 0, 0);
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = (color >> 0) & 0xFF;
+        paint.setARGB(80, r, g, b);
         canvas.drawRect(0, 0, this.getWidth(), this.getHeight(), paint);
     }
+
 
 }
