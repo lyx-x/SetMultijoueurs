@@ -50,7 +50,7 @@ public class CardView extends View {
         {
             paint.setColor(card.color);
             canvas.drawRect(10, 10, this.getWidth() - 10, this.getHeight() - 10, paint);
-            paint.setColor(Color.RED);
+            paint.setColor(Color.WHITE);
             paint.setStyle(Paint.Style.STROKE);
             canvas.drawCircle(this.getWidth() / 2, this.getHeight() / 2, this.getWidth() / 2 - 10, paint);
         }
