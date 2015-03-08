@@ -20,6 +20,8 @@ public class CardView extends View {
     private Card card;
     private Paint paint;
     private int[] colors = new int[] {Color.RED, Color.GREEN, Color.BLUE};
+    private boolean correct;
+    private boolean chosen;
 
     public CardView (Context context, AttributeSet attrs, Card c)
     {
@@ -37,9 +39,13 @@ public class CardView extends View {
         this.card = c;
     }
 
+    public void setMask (boolean c)
+    {
+        chosen = true;
+        this.correct = c;
+    }
 
     void drawRhombus(RectF rect, Paint p, Canvas c){
-        p.setColor(colors[card.color]);
         int h = c.getHeight();
         int w = c.getWidth();
         float coord[][] = new float[4][2];
@@ -66,9 +72,10 @@ public class CardView extends View {
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         if (card != null)
         {
-            int h = this.getHeight() / 6;
             int y = this.getHeight() / (2 * card.number + 3);
             int x = this.getWidth() / 5;
+            int h = this.getHeight() / 6;
+            int w = this.getWidth() - x * 2;
             int height = this.getHeight();
             int width = this.getWidth();
             int delta = height / 50;
@@ -76,7 +83,6 @@ public class CardView extends View {
             paint.setColor(Color.WHITE);
             canvas.drawRect(10, 10, width - 10, height - 10, paint);
             paint.setColor(colors[card.color]);
-
             switch (card.fill){
                 case 0:
                     paint.setStyle(Paint.Style.FILL);
@@ -91,9 +97,9 @@ public class CardView extends View {
             }
             for(int i = 0 ; i <= card.number ; i++){
                 for(int k = 0 ; k < nb ; k++) {
-                    int left = x + delta * k;
+                    int left = x + delta * k * (w / h);
                     int top = y * (i * 2 + 1) + y / 2 - h / 2 + delta * k;
-                    int right = width - x - delta * k;
+                    int right = width - x - delta * k * (w / h);
                     int bottom = top + h - 2 * delta * k;
                     RectF rect = new RectF(left, top, right, bottom);
                     switch (card.shape) {
@@ -110,6 +116,17 @@ public class CardView extends View {
                     }
                 }
             }
+            if (chosen)
+            {
+                if (correct)
+                {
+
+                }
+                else
+                {
+
+                }
+            }
         }
         else
         {
@@ -120,6 +137,12 @@ public class CardView extends View {
             canvas.drawCircle(this.getWidth() / 2, this.getHeight() / 2, this.getWidth() / 2 - 10, paint);
         }
 
+    }
+
+    public void mask (int c, Canvas canvas){
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setARGB(50, 255, 0, 0);
+        canvas.drawRect(0, 0, this.getWidth(), this.getHeight(), paint);
     }
 
 }

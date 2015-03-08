@@ -11,18 +11,22 @@
         >
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card01"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card02"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card03"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card04"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
     </TableRow>
@@ -34,18 +38,22 @@
         >
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card05"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card06"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card07"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card08"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
     </TableRow>
@@ -57,18 +65,22 @@
         >
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card09"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card10"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card11"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card12"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
     </TableRow>
@@ -80,18 +92,22 @@
         >
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card13"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card14"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card15"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
         <x.lyx.setmultijoueurs.CardView android:id="@+id/Card16"
             android:layout_weight="1"
+            android:layout_margin="2dp"
             />
 
     </TableRow>
