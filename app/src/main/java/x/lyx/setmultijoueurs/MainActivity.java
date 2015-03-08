@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         layout = (TableLayout) findViewById(R.id.Table);
         CardView cardView = (CardView) findViewById(R.id.Card01);
-        cardView.setCard(new Card(1, 1, 1, 0));
+        cardView.setCard(new Card(0, 0, 2, 0));
         cardView.invalidate();
         //layout.addView(cardView, new GridLayout.LayoutParams(row1, col1));
     }

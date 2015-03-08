@@ -9,6 +9,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -65,25 +66,35 @@ public class CardView extends View {
         paint = new Paint();
         if (card != null)
         {
-            int y=canvas.getHeight()/(2*card.number+1);
-            int x=canvas.getWidth()/10;
-            int height=canvas.getHeight();
-            int width=canvas.getWidth();
-            int little=height/20;
+            int y = canvas.getHeight() / (2 * card.number + 3);
+            int x = canvas.getWidth() / 5;
+            int height = canvas.getHeight();
+            int width = canvas.getWidth();
+            int little = height / 40;
+            int j = 1;
+            paint.setColor(Color.WHITE);
+            canvas.drawRect(10, 10, this.getWidth() - 10, this.getHeight() - 10, paint);
             paint.setColor(colors[card.color]);
-            int j=1;
+
             switch (card.fill){
+                case 0:
+                    paint.setStyle(Paint.Style.FILL);
+                    break;
                 case 1:
-                    paint.setStrokeWidth(1);
+                    paint.setStyle(Paint.Style.STROKE);
                     break;
                 case 2:
-                    j=10;
-                    paint.setStrokeWidth(1);
+                    j = 10;
+                    paint.setStyle(Paint.Style.STROKE);
                     break;
             }
-            for(int i=0;i<card.number;i++){
-                for(int k=0;k<j;k++) {
-                    RectF rect = new RectF(x+little*k, y * (i * 2 + 1)+little*k, width - x+little*k, y * (i * 2 + 1) + y+little*k);
+            for(int i = 0 ; i <= card.number ; i++){
+                for(int k = 0 ; k < j ; k++) {
+                    int left = x + little * k;
+                    int top = y * (i * 2 + 1) + little * k;
+                    int right = width - x - little * k;
+                    int bottom = top + y - 2 * little * k;
+                    RectF rect = new RectF(left, top, right, bottom);
                     switch (card.shape) {
                         case 0:
                             canvas.drawRect(rect, paint);
@@ -92,7 +103,7 @@ public class CardView extends View {
                             canvas.drawOval(rect, paint);
                             break;
                         case 2:
-                            drawRhombus(rect,paint,canvas);
+                            drawRhombus(rect, paint, canvas);
                             break;
                         default:
                     }
