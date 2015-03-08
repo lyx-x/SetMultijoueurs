@@ -22,7 +22,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         layout = (TableLayout) findViewById(R.id.Table);
         CardView cardView = (CardView) findViewById(R.id.Card01);
-        cardView.setCard(new Card(2, 0, 2, 2));
+        cardView.setCard();
         cardView.invalidate();
         System.out.println(layout.getChildCount());
         for (int i = 0 ; i < layout.getChildCount() ; i++)

@@ -78,7 +78,7 @@ public class CardView extends View {
             int w = this.getWidth() - x * 2;
             int height = this.getHeight();
             int width = this.getWidth();
-            int delta = height / 50;
+            int delta = height / 40;
             int nb = 1;
             paint.setColor(Color.WHITE);
             canvas.drawRect(10, 10, width - 10, height - 10, paint);
