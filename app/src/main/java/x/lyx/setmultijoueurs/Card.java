@@ -2,7 +2,10 @@ package x.lyx.setmultijoueurs;
 
 import android.system.ErrnoException;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,31 +20,34 @@ import java.util.TreeMap;
  */
 
 public class Card {
-    public static LinkedList<Integer> CardSet;
+    public static LinkedList<Integer> CardSet=new LinkedList<Integer>();
     int number;
     int color;
     int fill;  // 0 : FILL ; 1 : STROKE ; 2 : HATCH
     int shape;  // 0 : RECT ; 1 : OVAL ; 2 : RHOMBUS
     public static void init(){
-        CardSet.clear();
-        HashMap<Integer,Integer> temp=new HashMap<Integer, Integer>();
+        int[][] temp=new int[81][2];
         Random rand=new Random();
         for(int i=0;i<81;i++){
-            temp.put(rand.nextInt(),i);
+            temp[i][0]=i;
+            temp[i][1]=rand.nextInt(100);
         }
-        Map<Integer,Integer> sort=new TreeMap<Integer, Integer>(temp);
-        Set set=sort.entrySet();
-        Iterator iter=set.iterator();
-        while(iter.hasNext()){
-          Map.Entry me=(Map.Entry)iter.next();
-          CardSet.push((int)me.getValue());
+        for(int i=0;i<81;i++){
+            for(int j=i+1;j<81;j++){
+                if (temp[j][1]>temp[i][1]){
+                    int k=temp[i][0];temp[i][0]=temp[j][0];temp[j][0]=k;
+                    k=temp[i][1];temp[i][1]=temp[j][1];temp[j][1]=k;
+                }
+            }
         }
-
+        for(int i=0;i<81;i++){
+            CardSet.add(temp[i][0]);
+        }
     }
-    public Card nextCard(){
+    public static Card nextCard(){
         if (!CardSet.isEmpty()){
             int c=CardSet.getFirst();
-            CardSet.pop();
+            CardSet.remove();
             return (new Card(c%3,(c/3)%3,(c/9)%3,(c/27)%3));
         }else{
             return null;
