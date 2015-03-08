@@ -90,7 +90,7 @@ public class CardView extends View{
             int delta = height / 40;
             int nb = 1;
             paint.setColor(Color.WHITE);
-            canvas.drawRect(10, 10, width - 10, height - 10, paint);
+            canvas.drawRect(x / 4, x / 4, width - x / 4, height - x / 4, paint);
             paint.setColor(colors[card.color]);
             switch (card.fill){
                 case 0:
