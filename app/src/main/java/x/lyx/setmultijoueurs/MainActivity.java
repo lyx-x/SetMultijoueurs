@@ -22,14 +22,19 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         layout = (TableLayout) findViewById(R.id.Table);
         CardView cardView;
+        System.out.println(layout.getChildCount());
         for (int i = 0 ; i < layout.getChildCount() ; i++)
         {
             TableRow row = (TableRow) layout.getChildAt(i);
             for (int j = 0 ; j < row.getChildCount() ; j++)
             {
                 cardView = (CardView) row.getChildAt(j);
-                cardView.setCard(new Card(1, 2, 0, 2));
+                Card.init();
+                cardView.setCard(Card.nextCard());
                 cardView.invalidate();
+                //cardView.mask(Color.YELLOW);
+
+                cardView.setBackgroundColor(Color.RED);
             }
         }
         //layout.addView(cardView, new GridLayout.LayoutParams(row1, col1));
