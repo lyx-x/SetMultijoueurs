@@ -59,5 +59,11 @@ public class Card {
         this.fill = f;
         this.shape = s;
     }
+    public int hashCode(){
+        return(((number*3+color)*3+fill)*3+shape);
+    }
+    public boolean isDifferent(Card a){
+        return (number!=a.number && color!=a.color && shape!=a.shape && fill!=a.fill);
+    }
 
 }

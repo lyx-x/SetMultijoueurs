@@ -37,6 +37,10 @@ public class MainActivity extends Activity {
                 cardView.setBackgroundColor(Color.RED);
             }
         }
+        cardView=(CardView)findViewById(R.id.Card16);
+        cardView.special=true;
+        cardView.invalidate();
+
         //layout.addView(cardView, new GridLayout.LayoutParams(row1, col1));
     }
 

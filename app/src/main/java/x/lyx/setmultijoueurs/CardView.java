@@ -17,6 +17,7 @@ import android.view.View;
  */
 public class CardView extends View{
 
+    public boolean special=false;
     private Card card;
     private Paint paint;
     private int[] colors = new int[] {Color.RED, Color.GREEN, Color.BLUE};
@@ -28,9 +29,17 @@ public class CardView extends View{
         @Override
         public void onClick(View v) {
             ((CardView)v).switchChoice();
+            Game.selectCard((CardView)v);
+            if(Game.selectedCard.size()==3){
+                Game.haveSet();
+            }
             v.invalidate();
         }
     };
+
+    public Card getCard(){
+        return card;
+    }
 
     public CardView (Context context, AttributeSet attrs)
     {
@@ -79,6 +88,7 @@ public class CardView extends View{
     {
         super.onDraw(canvas);
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
         if (card != null)
         {
             int y = this.getHeight() / (2 * card.number + 3);
@@ -91,6 +101,13 @@ public class CardView extends View{
             int nb = 1;
             paint.setColor(Color.WHITE);
             canvas.drawRect(x / 4, x / 4, width - x / 4, height - x / 4, paint);
+            if(special){
+                paint.setColor(Color.BLACK);
+                paint.setTextSize(15);
+                canvas.drawText("Score: "+Game.score,10,20,paint);
+                canvas.drawText("Time: ",10,40,paint);
+                return;
+            }
             paint.setColor(colors[card.color]);
             switch (card.fill){
                 case 0:
