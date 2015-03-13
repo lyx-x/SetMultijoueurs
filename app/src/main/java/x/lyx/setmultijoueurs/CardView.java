@@ -17,7 +17,7 @@ import android.view.View;
  */
 public class CardView extends View{
 
-    public boolean special=false;
+    public boolean special = false;
     private Card card;
     private Paint paint;
     private int[] colors = new int[] {Color.RED, Color.GREEN, Color.BLUE};
@@ -25,14 +25,18 @@ public class CardView extends View{
     private boolean chosen = false;
     private boolean judged = false;
 
+    public static MainActivity game;
+
     private OnClickListener chose = new OnClickListener() {
         @Override
         public void onClick(View v) {
+            if (((CardView)v).judged || ((CardView)v).special)
+                return;
             ((CardView)v).switchChoice();
-            Game.selectCard((CardView)v);
-            if(Game.selectedCard.size()==3){
-                Game.haveSet();
-            }
+            if (((CardView)v).chosen)
+                game.selectCard((CardView)v);
+            else
+                game.removeCard((CardView)v);
             v.invalidate();
         }
     };
@@ -55,12 +59,14 @@ public class CardView extends View{
     public void setJudgment (boolean c)
     {
         judged = true;
+        chosen = false;
         this.correct = c;
     }
 
     public void switchChoice ()
     {
         chosen = !chosen;
+        judged = false;
     }
 
     void drawRhombus(RectF rect, Paint p, Canvas c){
@@ -102,10 +108,7 @@ public class CardView extends View{
             paint.setColor(Color.WHITE);
             canvas.drawRect(x / 4, x / 4, width - x / 4, height - x / 4, paint);
             if(special){
-                paint.setColor(Color.BLACK);
-                paint.setTextSize(15);
-                canvas.drawText("Score: "+Game.score,10,20,paint);
-                canvas.drawText("Time: ",10,40,paint);
+                drawScore(game.score, canvas);
                 return;
             }
             paint.setColor(colors[card.color]);
@@ -146,12 +149,12 @@ public class CardView extends View{
                 if (correct)
                 {
                     this.setBackgroundColor(Color.GREEN);
-                    mask(Color.GREEN, canvas);
+                    drawMask(Color.GREEN, canvas);
                 }
                 else
                 {
                     this.setBackgroundColor(Color.RED);
-                    mask(Color.RED, canvas);
+                    drawMask(Color.RED, canvas);
                 }
             }
             else
@@ -173,7 +176,7 @@ public class CardView extends View{
 
     }
 
-    void mask (int color, Canvas canvas){
+    void drawMask (int color, Canvas canvas){
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         int r = (color >> 16) & 0xFF;
         int g = (color >> 8) & 0xFF;
@@ -182,5 +185,11 @@ public class CardView extends View{
         canvas.drawRect(0, 0, this.getWidth(), this.getHeight(), paint);
     }
 
-
+    void drawScore (int score, Canvas canvas)
+    {
+        paint.setColor(Color.BLACK);
+        paint.setTextSize(15);
+        canvas.drawText("Score: " + score, 10, 20,paint);
+        canvas.drawText("Time: ", 10, 40, paint);
+    }
 }
