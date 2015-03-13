@@ -1,20 +1,30 @@
 package x.lyx.setmultijoueurs;
 
+import java.util.LinkedList;
+
 /**
  * Created by czx on 10/03/15.
  */
 public class CardSet {
 
-    Card a,b,c;
+    CardView a,b,c;
 
-    public CardSet(Card a,Card b,Card c){
-        this.a=a;
-        this.b=b;
-        this.c=c;
+    public CardSet(CardView a, CardView b, CardView c){
+        this.a = a;
+        this.b = b;
+        this.c = c;
     }
 
     public boolean isSet(){
-        return(a.isDifferent(b) && b.isDifferent(c) && a.isDifferent(c));
+        return (a.getCard().isDifferent(b.getCard()) && b.getCard().isDifferent(c.getCard()) && a.getCard().isDifferent(c.getCard()));
+    }
+
+    public LinkedList<CardView> getCardView(){
+        LinkedList<CardView> l = new LinkedList<CardView>();
+        l.add(a);
+        l.add(b);
+        l.add(c);
+        return l;
     }
 
 }

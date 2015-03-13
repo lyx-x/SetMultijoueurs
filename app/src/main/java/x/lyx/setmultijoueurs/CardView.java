@@ -23,7 +23,7 @@ public class CardView extends View{
     private int[] colors = new int[] {Color.RED, Color.GREEN, Color.BLUE};
     private boolean correct;
     private boolean chosen = false;
-    private boolean judged;
+    private boolean judged = false;
 
     private OnClickListener chose = new OnClickListener() {
         @Override

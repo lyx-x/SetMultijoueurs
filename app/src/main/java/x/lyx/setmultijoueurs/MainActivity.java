@@ -3,6 +3,7 @@ package x.lyx.setmultijoueurs;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.GridLayout;
@@ -14,34 +15,56 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
+    class Mask implements Runnable{
+
+        boolean judge;
+        CardSet set;
+
+        public Mask(boolean j, CardSet s)
+        {
+            this.judge = j;
+            this.set = s;
+        }
+
+        public void run()
+        {
+            for (CardView view : set.getCardView())
+            {
+                view.setJudgment(judge);
+                view.invalidate();
+            }
+        }
+    }
+
     TableLayout layout;
+    public static Handler setMask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setMask = new Handler();
+        Game.game = this;
+
         layout = (TableLayout) findViewById(R.id.Table);
+        Card.init();
         CardView cardView;
         System.out.println(layout.getChildCount());
+
         for (int i = 0 ; i < layout.getChildCount() ; i++)
         {
             TableRow row = (TableRow) layout.getChildAt(i);
             for (int j = 0 ; j < row.getChildCount() ; j++)
             {
                 cardView = (CardView) row.getChildAt(j);
-                Card.init();
                 cardView.setCard(Card.nextCard());
                 cardView.invalidate();
-                //cardView.mask(Color.YELLOW);
-
-                cardView.setBackgroundColor(Color.RED);
             }
         }
         cardView=(CardView)findViewById(R.id.Card16);
         cardView.special=true;
         cardView.invalidate();
-
-        //layout.addView(cardView, new GridLayout.LayoutParams(row1, col1));
     }
 
 
@@ -65,5 +88,10 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void setMask(boolean judge, CardSet s)
+    {
+        setMask.post(new Mask(judge, s));
     }
 }
