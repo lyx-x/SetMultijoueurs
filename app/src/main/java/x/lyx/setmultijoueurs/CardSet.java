@@ -3,9 +3,6 @@ package x.lyx.setmultijoueurs;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 
-/**
- * Created by czx on 10/03/15.
- */
 public class CardSet {
 
     CardView a, b, c;
@@ -25,10 +22,10 @@ public class CardSet {
         try
         {
             Class<?> cls = Class.forName("x.lyx.setmultijoueurs.Card");
-            Field[] fields = cls.getDeclaredFields();
+            Field[] fields = cls.getDeclaredFields();  //Find all 4 members of Card
             for (Field f : fields)
             {
-                if (!isSetOneTest(f))
+                if (!isSetOneTest(f))  //Compare every member
                     return false;
             }
             return true;

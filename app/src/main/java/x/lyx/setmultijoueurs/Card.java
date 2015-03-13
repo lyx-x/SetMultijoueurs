@@ -1,21 +1,5 @@
 package x.lyx.setmultijoueurs;
 
-import android.system.ErrnoException;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeMap;
-
-/**
- * Created by lyx on 26/02/15.
- */
-
 public class Card {
 
     int number;
