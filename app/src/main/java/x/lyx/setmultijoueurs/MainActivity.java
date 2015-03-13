@@ -169,7 +169,7 @@ public class MainActivity extends Activity {
         {
             if (count >= numberViews)
                 break;
-            TableRow row = (TableRow) layout.getChildAt(i);
+            TableRow row = (TableRow)layout.getChildAt(i);
             for (int j = 0 ; j < row.getChildCount() ; j++)
             {
                 if (count >= numberViews)
@@ -181,7 +181,7 @@ public class MainActivity extends Activity {
         replaceCards(allViews);  //Now we have a full list of CardView
 
         CardView cardView;
-        cardView=(CardView)findViewById(R.id.Card16);
+        cardView = (CardView)findViewById(R.id.Card16);
         cardView.special=true;
         scoreboard = cardView;
         new LoopThread(new UpdateScore(null), 500).start();
