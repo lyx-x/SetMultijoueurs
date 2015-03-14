@@ -3,6 +3,7 @@ package x.lyx.setmultijoueurs;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TableLayout;
@@ -108,6 +109,17 @@ public class MainActivity extends Activity {
         }
     }
 
+    class LooperSocket extends Thread{
+
+        public Handler handler = new Handler();
+
+        public void run(){
+            Looper.prepare();
+            handler = new Handler();
+            Looper.loop();
+        }
+    }
+
     class ClientSubmission implements Runnable{
 
         CardSet set;
@@ -207,8 +219,10 @@ public class MainActivity extends Activity {
             boolean active = true;
             while (active){
                 try{
+                    Thread.sleep(100);
                     input = new BufferedReader(new InputStreamReader(client.getInputStream()));
                     char task = (char)input.read();
+                    System.out.println(task);
                     input.read();
                     String[] s;
                     switch (task){
@@ -239,7 +253,7 @@ public class MainActivity extends Activity {
                             cards = new LinkedList<Card>();
                             s = input.readLine().split(" ");
                             for (int i = 0 ; i < 3 ; i++) {
-                                cards.add(new Card(Integer.parseInt(s[i * 2])));
+                                cards.add(new Card(Integer.parseInt(s[i])));
                             }
                             updateScore(cards);
                             break;
@@ -249,7 +263,7 @@ public class MainActivity extends Activity {
                             break;
                     }
                 }
-                catch (IOException e){
+                catch (Exception e){
                     System.out.println(e);
                 }
             }
@@ -267,6 +281,7 @@ public class MainActivity extends Activity {
     public int score = 0;
     Handler viewChange;  //Handler for all calls from other threads
     Socket socket=new Socket();
+    LooperSocket looper=new LooperSocket();
 
     LinkedList<CardView> selectedCard = new LinkedList<CardView>();
     LinkedList<CardView> allViews = new LinkedList<CardView>();
@@ -431,19 +446,21 @@ public class MainActivity extends Activity {
             else
             {
                 setMask(true, s);
-                viewChange.post(new ClientSubmission(s,socket));
+                looper.handler.post(new ClientSubmission(s, socket));
             }
         }
         else{
+            score += redScore;
+            updateScore(cardSet);
+            setMask(false,s);
             if (netMode){
                 for(CardView cv : allViews){
                     cv.setFroze(true);
                 }
+
+            }else {
+                undoMask(s, redTime);
             }
-            score += redScore;
-            setMask(false, s);
-            undoMask(s, redTime);
-            updateScore(cardSet);
         }
     }
 
@@ -464,7 +481,7 @@ public class MainActivity extends Activity {
 
     public void replaceCards(LinkedList<CardView> views, LinkedList<Card> cards)
     {
-        viewChange.post(new ReplaceCards(views,cards));
+        viewChange.post(new ReplaceCards(views, cards));
     }
 
     public void replaceCards(LinkedList<CardView> cards, long time)
