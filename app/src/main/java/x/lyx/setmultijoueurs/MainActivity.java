@@ -253,6 +253,7 @@ public class MainActivity extends Activity {
                             {
                                 replaceCards(views,cards);
                             }
+                            viewChange.post(meltViews);
                             break;
                         case 'S':
                             score += greenScore;
