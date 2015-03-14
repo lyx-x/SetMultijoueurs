@@ -227,47 +227,49 @@ public class MainActivity extends Activity {
                 try{
                     Thread.sleep(100);
                     input = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                    char task = (char)input.read();
-                    System.out.println(task);
-                    input.read();
-                    String[] s;
-                    switch (task){
-                        case 'V':
-                            views = new LinkedList<CardView>();
-                            cards = new LinkedList<Card>();
-                            int view = 0, cardCode = 0;
-                            String msg = input.readLine();
-                            System.out.println(msg);
-                            s = msg.split(" ");
-                            for (int i = 0 ; i < s.length / 2 ; i++){
-                                view = Integer.parseInt(s[i * 2]);
-                                cardCode = Integer.parseInt(s[i * 2 + 1]);
-                                cards.add(new Card(cardCode));
-                                views.add(allViews.get(view));
-                            }
-                            if (s.length == 6)
-                            {
-                                replaceCards(views,cards, greenTime);
-                            }
-                            else
-                            {
-                                replaceCards(views,cards);
-                            }
-                            viewChange.post(meltViews);
-                            break;
-                        case 'S':
-                            score += greenScore;
-                            cards = new LinkedList<Card>();
-                            s = input.readLine().split(" ");
-                            for (int i = 0 ; i < 3 ; i++) {
-                                cards.add(new Card(Integer.parseInt(s[i])));
-                            }
-                            updateScore(cards);
-                            break;
-                        case 'E':
-                            active = false;
-                            client.close();
-                            break;
+                    while(input.ready() && active){
+                        char task = (char)input.read();
+                        System.out.println(task);
+                        input.read();
+                        String[] s;
+                        switch (task){
+                            case 'V':
+                                views = new LinkedList<CardView>();
+                                cards = new LinkedList<Card>();
+                                int view = 0, cardCode = 0;
+                                String msg = input.readLine();
+                                System.out.println(msg);
+                                s = msg.split(" ");
+                                for (int i = 0 ; i < s.length / 2 ; i++){
+                                    view = Integer.parseInt(s[i * 2]);
+                                    cardCode = Integer.parseInt(s[i * 2 + 1]);
+                                    cards.add(new Card(cardCode));
+                                    views.add(allViews.get(view));
+                                }
+                                if (s.length == 6)
+                                {
+                                    replaceCards(views,cards, greenTime);
+                                }
+                                else
+                                {
+                                    replaceCards(views,cards);
+                                }
+                                viewChange.post(meltViews);
+                                break;
+                            case 'S':
+                                score += greenScore;
+                                cards = new LinkedList<Card>();
+                                s = input.readLine().split(" ");
+                                for (int i = 0 ; i < 3 ; i++) {
+                                    cards.add(new Card(Integer.parseInt(s[i])));
+                                }
+                                updateScore(cards);
+                                break;
+                            case 'E':
+                                active = false;
+                                client.close();
+                                break;
+                        }
                     }
                 }
                 catch (Exception e){
@@ -280,8 +282,10 @@ public class MainActivity extends Activity {
     Runnable meltViews = new Runnable() {
         @Override
         public void run() {
-            for (CardView v : allViews)
+            for (CardView v : allViews) {
                 v.restart();
+                v.invalidate();
+            }
         }
     };
 
