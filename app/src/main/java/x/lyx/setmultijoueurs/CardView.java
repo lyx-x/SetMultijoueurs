@@ -10,14 +10,16 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import java.util.Date;
+import java.util.LinkedList;
 
 public class CardView extends View{
 
+    public int id;
     public static MainActivity game;
     public static long startTime = System.currentTimeMillis();
 
     public boolean special = false;
-    public CardSet rightSet;
+    public LinkedList<Card> rightSet;
 
     Card card;
     Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -25,14 +27,15 @@ public class CardView extends View{
     boolean correct;
     boolean chosen = false;
     boolean judged = false;
+    boolean froze = false;
 
     OnClickListener choose = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (((CardView)v).judged || ((CardView)v).special)
+            if (((CardView) v).judged || ((CardView) v).special || ((CardView) v).froze)
                 return;
-            ((CardView)v).switchChoice();
-            if (((CardView)v).chosen)
+            ((CardView) v).switchChoice();
+            if (((CardView) v).chosen)
                 game.selectCard((CardView) v);
             else
                 game.removeCard((CardView) v);
@@ -162,6 +165,10 @@ public class CardView extends View{
         }
         else
         {
+            if (chosen)
+                this.setBackgroundColor(Color.BLUE);
+            else
+                this.setBackgroundColor(Color.WHITE);
             paint.setColor(Color.YELLOW);
             canvas.drawRect(10, 10, this.getWidth() - 10, this.getHeight() - 10, paint);
             paint.setColor(Color.RED);

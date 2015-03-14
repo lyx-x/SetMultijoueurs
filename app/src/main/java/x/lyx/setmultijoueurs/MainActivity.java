@@ -7,6 +7,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -36,34 +42,45 @@ public class MainActivity extends Activity {
 
     class UpdateScore implements Runnable{
 
-        CardSet set;
+        LinkedList<Card> cardset=new LinkedList<Card>();
 
-        public UpdateScore(CardSet set)
+        public UpdateScore(LinkedList<Card> c)
         {
-            this.set = set;
+            this.cardset = c;
         }
 
         public void run()
         {
-            scoreboard.rightSet = set;
+            scoreboard.rightSet = cardset;
             scoreboard.invalidate();
         }
     }
 
     class ReplaceCards implements Runnable{
 
-        LinkedList<CardView> cards;
-
-        public ReplaceCards(LinkedList<CardView> c)
+        LinkedList<CardView> views;
+        LinkedList<Card> cards;
+        public ReplaceCards(LinkedList<CardView> v,LinkedList<Card> c)
         {
             this.cards = c;
+            this.views=v;
         }
-
+        public ReplaceCards(LinkedList<CardView> v){
+            this.views=v;
+            this.cards=new LinkedList<Card>();
+        }
         public void run()
         {
-            for (CardView v : cards)
+            int i=0;
+            for (CardView v : views)
             {
-                v.setCard(nextCard());
+                if(cards.size()!=0){
+                    v.setCard(cards.get(i));
+                    i++;
+                }
+                else{
+                    v.setCard(nextCard());
+                }
                 v.invalidate();
             }
         }
@@ -86,6 +103,32 @@ public class MainActivity extends Activity {
                 v.invalidate();
             }
         }
+    }
+
+    class ClientSubmission implements Runnable{
+
+        CardSet set;
+        Socket client;
+        public ClientSubmission(CardSet set,Socket s){
+            this.set=set;
+            this.client=s;
+        }
+
+        public void run(){
+            StringBuilder s=new StringBuilder();
+            s.append('S'+' ');
+            for (CardView v:set.getCardView()){
+                s.append(v.id+' '+v.card.hashCode());
+            }
+            try {
+                System.out.print(s);
+                PrintWriter pw = new PrintWriter(client.getOutputStream(),true);
+                pw.print(s);
+            } catch (IOException e) {
+                throw new RuntimeException("Impossible to create the output stream");
+            }
+        }
+
     }
 
     class DelayThread extends Thread{
@@ -138,18 +181,81 @@ public class MainActivity extends Activity {
         }
     }
 
+    class ClientReceive extends Thread{
+        Socket client;
+        LinkedList<CardView> views;
+        LinkedList<Card> cards;
+        public ClientReceive(Socket s){
+            this.client=s;
+        }
+
+        @Override
+        public void run() {
+            BufferedReader input;
+            boolean f=true;
+            while(f){
+                try{
+                    input = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                    switch ((char)input.read()){
+                        case 'V':
+                            views=new LinkedList<CardView>();
+                            cards=new LinkedList<Card>();
+                            input.read();
+                            int view=0,cardcode=0;
+                            String msg=input.readLine();
+                            System.out.print(msg);
+                            String[] s=msg.split(" ");
+                            for(int i=0;i<s.length/2;i++){
+                                view=Integer.parseInt(s[i*2]);
+                                cardcode=Integer.parseInt(s[i*2+1]);
+                                cards.add(new Card((cardcode/27)%3,(cardcode/9)%3,(cardcode/3)%3,cardcode%3));
+                                views.add(allViews.get(view));
+                            }
+                            if(s.length==6){
+                                replaceCards(views,cards,greenTime);
+                            }else{
+                                replaceCards(views,cards);
+                            }
+                            break;
+                        case 'S':
+                            score+=greenScore;
+                            cards=new LinkedList<Card>();
+                            input.read();
+                            s=input.readLine().split(" ");
+                            for(int i=0;i<3;i++) {
+                                cardcode=Integer.parseInt(s[i*2]);
+                                cards.add(new Card((cardcode / 27) % 3, (cardcode / 9) % 3, (cardcode / 3) % 3, cardcode % 3));
+                            }
+                            updateScore(cards);
+                            break;
+                        case 'E':
+                            f=false;
+                            client.close();
+                            break;
+                    }
+                }catch(IOException e){
+
+                }
+            }
+        }
+    }
+
+
     public int score = 0;
     Handler viewChange;  //Handler for all calls from other threads
+    Socket socket=new Socket();
 
     LinkedList<CardView> selectedCard = new LinkedList<CardView>();
     LinkedList<CardView> allViews = new LinkedList<CardView>();
     LinkedList<Integer> cards = new LinkedList<Integer>();  //All 81 cards
+
 
     int numberViews = 15;  //Number of cards displayed
     long greenTime = 500;  //Duration after a set is found
     long redTime = 2000;  //Duration after a wrong set is found
     int greenScore = 10;  //Score for a right set
     int redScore = -2;  //Score for a wrong set
+    int mode=1; //0 for one player,1 for two player
 
     CardView scoreboard;
 
@@ -158,12 +264,22 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initCards();  //Create all 81 cards
         viewChange = new Handler();
         CardView.game = this;  //Pass some methods and the score to all CardViews
 
-        TableLayout layout = (TableLayout)findViewById(R.id.Table);
+        if (mode==1){
+            try{
+                socket=new Socket("192.168.1.1",8888);
+                new ClientReceive(socket).start();
+            }catch(Exception e){
+                System.out.print(e);
+            }
+        }else{
+            initCards();  //Create all 81 cards
+        }
 
+        TableLayout layout = (TableLayout)findViewById(R.id.Table);
+        CardView cardView;
         int count = 0;
         for (int i = 0 ; i < layout.getChildCount() ; i++)
         {
@@ -175,12 +291,16 @@ public class MainActivity extends Activity {
                 if (count >= numberViews)
                     break;
                 count++;
-                allViews.add((CardView)row.getChildAt(j));
+                cardView = (CardView)row.getChildAt(j);
+                cardView.id=i*row.getChildCount()+j;
+
+                allViews.add(cardView);
             }
         }
-        replaceCards(allViews);  //Now we have a full list of CardView
+        if(mode==0) {
+            replaceCards(allViews);  //Now we have a full list of CardView
+        }
 
-        CardView cardView;
         cardView = (CardView)findViewById(R.id.Card16);
         cardView.special=true;
         scoreboard = cardView;
@@ -270,18 +390,33 @@ public class MainActivity extends Activity {
         CardView a = selectedCard.poll();
         CardView b = selectedCard.poll();
         CardView c = selectedCard.poll();
+        LinkedList<Card> cardSet=new LinkedList<Card>();
+        cardSet.add(a.card);
+        cardSet.add(b.card);
+        cardSet.add(c.card);
         CardSet s = new CardSet(a, b, c);
         if (s.isSet()){
-            score += greenScore;
-            setMask(true, s);
-            replaceCards(s.getCardView(), greenTime);
+            if(mode==0){
+                score += greenScore;
+                setMask(true, s);
+                replaceCards(s.getCardView(), greenTime);
+                updateScore(cardSet);
+            }else{
+                setMask(true, s);
+                viewChange.post(new ClientSubmission(s,socket));
+            }
         }
         else{
+            if(mode==1){
+                for(CardView cv:allViews){
+                    cv.froze=true;
+                }
+            }
             score += redScore;
             setMask(false, s);
             undoMask(s, redTime);
+            updateScore(cardSet);
         }
-        updateScore(s);
     }
 
     public void setMask(boolean judge, CardSet s)
@@ -289,9 +424,9 @@ public class MainActivity extends Activity {
         viewChange.post(new DoMask(judge, s));
     }
 
-    public void updateScore(CardSet set)
+    public void updateScore(LinkedList<Card> cs)
     {
-        viewChange.post(new UpdateScore(set));
+        viewChange.post(new UpdateScore(cs));
     }
 
     public void replaceCards(LinkedList<CardView> cards)
@@ -299,11 +434,19 @@ public class MainActivity extends Activity {
         viewChange.post(new ReplaceCards(cards));
     }
 
+    public void replaceCards(LinkedList<CardView> views,LinkedList<Card> cards)
+    {
+        viewChange.post(new ReplaceCards(views,cards));
+    }
+
     public void replaceCards(LinkedList<CardView> cards, long time)
     {
         new DelayThread(new ReplaceCards(cards), time).start();
     }
 
+    public void replaceCards(LinkedList<CardView> views,LinkedList<Card> cards,long time){
+        new DelayThread(new ReplaceCards(views,cards),time).start();
+    }
     public void undoMask(CardSet set)
     {
         viewChange.post(new UndoMask(set));
