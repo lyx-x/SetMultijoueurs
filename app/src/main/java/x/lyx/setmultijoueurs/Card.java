@@ -15,6 +15,14 @@ public class Card {
         this.shape = s;
     }
 
+    public Card (int hash)
+    {
+        this.number = (hash / 27 ) % 3;
+        this.color = (hash / 9) % 3;
+        this.fill = (hash / 3) % 3;
+        this.shape = hash % 3;
+    }
+
     public int hashCode()
     {
         return (((number * 3 + color) * 3 + fill) * 3 + shape);

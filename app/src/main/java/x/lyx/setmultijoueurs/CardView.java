@@ -21,13 +21,13 @@ public class CardView extends View{
     public boolean special = false;
     public LinkedList<Card> rightSet;
 
-    Card card;
-    Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    int[] colors = new int[] {Color.RED, Color.GREEN, Color.BLUE};
-    boolean correct;
-    boolean chosen = false;
-    boolean judged = false;
-    boolean froze = false;
+    private Card card;
+    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private int[] colors = new int[] {Color.RED, Color.GREEN, Color.BLUE};
+    private boolean correct;
+    private boolean chosen = false;
+    private boolean judged = false;
+    private boolean froze = false;
 
     OnClickListener choose = new OnClickListener() {
         @Override
@@ -63,6 +63,7 @@ public class CardView extends View{
     {
         chosen = false;
         judged = false;
+        froze = false;
     }
 
     public void setJudgment (boolean c)
@@ -70,6 +71,11 @@ public class CardView extends View{
         judged = true;
         chosen = false;
         this.correct = c;
+    }
+
+    public void setFroze (boolean f)
+    {
+        froze = f;
     }
 
     public void switchChoice ()
