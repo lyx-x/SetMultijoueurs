@@ -75,18 +75,20 @@ public class MainActivity extends Activity {
 
         public void run()
         {
-            int i=0;
-            for (CardView v : views)
-            {
-                if(cards.size() != 0){
+            if(cards.size()!=0){
+                int i=0;
+                for (CardView v : views){
                     v.setCard(cards.get(i));
                     i++;
                 }
-                else{
-                    v.setCard(nextCard());
-                }
-                v.invalidate();
             }
+            else{
+                for(CardView v:views){
+                    v.setCard(nextCard());
+                    v.invalidate();
+                }
+            }
+            isHaveSet();
         }
     }
 
@@ -108,6 +110,35 @@ public class MainActivity extends Activity {
             }
         }
     }
+
+    class haveCardSet implements Runnable{
+        public void run(){
+            CardSet s;
+            boolean findSet = false;
+            while(!findSet) {
+                for (int i = 0; i < numberViews; i++) {
+                    for (int j = 0; j < numberViews; j++) {
+                        for (int k = 0; k < numberViews; k++) {
+                            if (i != j && j != k && i != k) {
+                                s = new CardSet(allViews.get(i), allViews.get(j), allViews.get(k));
+                                if (s.isSet()){
+                                    findSet = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(findSet)
+                            break;
+                    }
+                    if(findSet)
+                        break;
+                }
+                if(!findSet)
+                    replaceCards(allViews);
+            }
+        }
+    }
+
 
     class LooperSocket extends Thread{
 
@@ -351,6 +382,7 @@ public class MainActivity extends Activity {
         {
             initCards();  //Create all 81 cards
             replaceCards(allViews);  //Now we have a full list of CardView
+            replaceCards(allViews);
         }
 
         cardView = (CardView)findViewById(R.id.Card16);
@@ -421,10 +453,13 @@ public class MainActivity extends Activity {
         if (!cards.isEmpty()){
             int c = cards.getFirst();
             cards.remove();
-            return (new Card(c % 3, (c / 3) % 3, (c / 9) % 3, (c / 27) % 3));
+            return (new Card(c));
         }
         else{
-            return null;
+            initCards();
+            int c=cards.getFirst();
+            cards.remove();
+            return(new Card(c));
         }
     }
 
@@ -513,5 +548,10 @@ public class MainActivity extends Activity {
     public void undoMask(CardSet set, long time)
     {
         new DelayThread(new UndoMask(set), time).start();
+    }
+
+    public void isHaveSet()
+    {
+        viewChange.post(new haveCardSet());
     }
 }
