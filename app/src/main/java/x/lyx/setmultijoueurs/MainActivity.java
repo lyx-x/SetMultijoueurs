@@ -76,10 +76,9 @@ public class MainActivity extends Activity {
         public void run()
         {
             if(cards.size()!=0){
-                int i=0;
                 for (CardView v : views){
-                    v.setCard(cards.get(i));
-                    i++;
+                    v.setCard(cards.poll());
+                    v.invalidate();
                 }
             }
             else{
@@ -87,8 +86,8 @@ public class MainActivity extends Activity {
                     v.setCard(nextCard());
                     v.invalidate();
                 }
+                haveCardSet();
             }
-            isHaveSet();
         }
     }
 
@@ -550,7 +549,7 @@ public class MainActivity extends Activity {
         new DelayThread(new UndoMask(set), time).start();
     }
 
-    public void isHaveSet()
+    public void haveCardSet()
     {
         viewChange.post(new haveCardSet());
     }
