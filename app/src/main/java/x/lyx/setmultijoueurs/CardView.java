@@ -53,6 +53,10 @@ public class CardView extends View{
         return card;
     }
 
+    public boolean getChosen(){
+        return chosen;
+    }
+
     public void setCard (Card c)
     {
         this.card = c;

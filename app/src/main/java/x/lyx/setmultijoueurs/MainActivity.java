@@ -77,6 +77,9 @@ public class MainActivity extends Activity {
         {
             if(cards.size()!=0){
                 for (CardView v : views){
+                    if (v.getChosen()){
+                        removeSelectedCard(v);
+                    }
                     v.setCard(cards.poll());
                     v.invalidate();
                 }
@@ -116,15 +119,14 @@ public class MainActivity extends Activity {
             boolean findSet = false;
             while(!findSet) {
                 for (int i = 0; i < numberViews; i++) {
-                    for (int j = 0; j < numberViews; j++) {
-                        for (int k = 0; k < numberViews; k++) {
-                            if (i != j && j != k && i != k) {
+                    for (int j = i+1; j < numberViews; j++) {
+                        for (int k = j+1; k < numberViews; k++) {
                                 s = new CardSet(allViews.get(i), allViews.get(j), allViews.get(k));
                                 if (s.isSet()){
                                     findSet = true;
+                                    System.out.format("%d %d %d\n",i,j,k);
                                     break;
                                 }
-                            }
                         }
                         if(findSet)
                             break;
@@ -424,6 +426,11 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    void removeSelectedCard(CardView cv){
+        int i=selectedCard.indexOf(cv);
+        selectedCard.remove(i);
+
+    }
     void initCards(){
         int[][] temp = new int[81][2];
         Random rand = new Random();
