@@ -77,9 +77,6 @@ public class MainActivity extends Activity {
         {
             if(cards.size()!=0){
                 for (CardView v : views){
-                    if (v.getChosen()){
-                        removeSelectedCard(v);
-                    }
                     v.setCard(cards.poll());
                     v.invalidate();
                 }
@@ -315,6 +312,8 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
             for (CardView v : allViews) {
+                if (v.getChosen())
+                    removeCard(v);
                 v.restart();
                 v.invalidate();
             }
