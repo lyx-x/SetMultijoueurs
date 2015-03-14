@@ -215,6 +215,12 @@ public class MainActivity extends Activity {
 
         @Override
         public void run() {
+            try {
+                client = new Socket("192.168.1.1", 8888);
+                socket = client;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             BufferedReader input;
             boolean active = true;
             while (active){
@@ -280,7 +286,7 @@ public class MainActivity extends Activity {
 
     public int score = 0;
     Handler viewChange;  //Handler for all calls from other threads
-    Socket socket=new Socket();
+    Socket socket = new Socket();
     LooperSocket looper=new LooperSocket();
 
     LinkedList<CardView> selectedCard = new LinkedList<CardView>();
@@ -329,11 +335,11 @@ public class MainActivity extends Activity {
         {
             try
             {
-                socket = new Socket("192.168.1.1",8888);
                 new ClientReceive(socket).start();
             }
             catch (Exception e){
                 System.out.println(e);
+                e.printStackTrace();
             }
         }
         else
