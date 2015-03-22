@@ -241,7 +241,7 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
             try {
-                client = new Socket("10.0.2.2", 8888);
+                client = new Socket("192.168.1.2", 8888);
                 socket = client;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -299,7 +299,12 @@ public class MainActivity extends Activity {
                                 client.close();
                                 netMode = false;
                                 viewChange.post(meltViews);
-                                numberViews = 12;
+                                if(numberViews == 15){
+                                    numberViews = 12;
+                                    allViews.removeLast();
+                                    allViews.removeLast();
+                                    allViews.removeLast();
+                                }
                                 replaceCards(allViews);
                                 invalidateOptionsMenu();
                                 score = 0;
@@ -435,7 +440,12 @@ public class MainActivity extends Activity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.multimode) {
-            numberViews = 12;
+            if(numberViews == 15){
+                numberViews = 12;
+                allViews.removeLast();
+                allViews.removeLast();
+                allViews.removeLast();
+            }
             score = 0;
             scoreboard.rightSet = null;
             CardView.startTime = System.currentTimeMillis();
@@ -462,7 +472,12 @@ public class MainActivity extends Activity {
             if(netMode) {
                 looper.handler.post(new ClientSubmission("E", socket));
             }else{
-                numberViews = 12;
+                if(numberViews == 15){
+                    numberViews = 12;
+                    allViews.removeLast();
+                    allViews.removeLast();
+                    allViews.removeLast();
+                }
                 viewChange.post(meltViews);
                 replaceCards(allViews);
                 score = 0;
