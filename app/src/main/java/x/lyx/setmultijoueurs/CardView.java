@@ -88,6 +88,53 @@ public class CardView extends View{
         judged = false;
     }
 
+    public void drawCard(Card card,Canvas canvas, RectF rect){
+        float height=rect.height();
+        float width=rect.width();
+        float x=width/5;
+        float y = height / (2 * card.number + 3);
+        float h = height / 6;
+        float w = width - width / 5 * 2;
+        int nb = 1;
+        float delta=height/40;
+
+        paint.setColor(colors[card.color]);
+        switch (card.fill){
+            case 0:
+                paint.setStyle(Paint.Style.FILL);
+                break;
+            case 1:
+                paint.setStyle(Paint.Style.STROKE);
+                break;
+            case 2:
+                nb = (int)(h / 2 / delta) + 1;
+                paint.setStyle(Paint.Style.STROKE);
+                break;
+        }
+        for(int i = 0 ; i <= card.number ; i++){
+            for(int k = 0 ; k < nb ; k++) {
+                float left = rect.left+x + delta * k * (w / h);
+                float top = rect.top+y * (i * 2 + 1) + y / 2 - h / 2 + delta * k;
+                float right = rect.left + width - x - delta * k * (w / h);
+                float bottom = top + h - 2 * delta * k;
+                RectF rectf = new RectF(left, top, right, bottom);
+                switch (card.shape) {
+                    case 0:
+                        canvas.drawRect(rectf, paint);
+                        break;
+                    case 1:
+                        canvas.drawOval(rectf, paint);
+                        break;
+                    case 2:
+                        drawRhombus(rectf, paint, canvas);
+                        break;
+                    default:
+                }
+            }
+        }
+
+    }
+
     @Override
     protected void onDraw(Canvas canvas)
     {
@@ -98,60 +145,26 @@ public class CardView extends View{
         {
             int height = this.getHeight();
             int width = this.getWidth();
-            int delta = height / 40;
-            int x = width / 5;
             paint.setColor(Color.WHITE);
-            canvas.drawRect(x / 4, x / 4, width - x / 4, height - x / 4, paint);
+            canvas.drawRect(width / 20, width / 20, width - width / 20, height - width / 20, paint);
 
             if (special)
             {
                 drawScore(game.score, canvas);
                 if (rightSet != null)
                 {
-                    System.out.println("TODO");
+                    int i=0;
+                    for(Card card : rightSet){
+                        RectF rect=new RectF(width/3*i+width/30,height/2,width/3*(i+1)-width/30,height);
+                        drawCard(card,canvas,rect);
+                        i++;
+                    }
                     //draw 3 cards
                 }
                 return;
-            }
-
-            int y = height / (2 * card.number + 3);
-            int h = height / 6;
-            int w = width - x * 2;
-            int nb = 1;
-
-            paint.setColor(colors[card.color]);
-            switch (card.fill){
-                case 0:
-                    paint.setStyle(Paint.Style.FILL);
-                    break;
-                case 1:
-                    paint.setStyle(Paint.Style.STROKE);
-                    break;
-                case 2:
-                    nb = h / 2 / delta + 1;
-                    paint.setStyle(Paint.Style.STROKE);
-                    break;
-            }
-            for(int i = 0 ; i <= card.number ; i++){
-                for(int k = 0 ; k < nb ; k++) {
-                    int left = x + delta * k * (w / h);
-                    int top = y * (i * 2 + 1) + y / 2 - h / 2 + delta * k;
-                    int right = width - x - delta * k * (w / h);
-                    int bottom = top + h - 2 * delta * k;
-                    RectF rect = new RectF(left, top, right, bottom);
-                    switch (card.shape) {
-                        case 0:
-                            canvas.drawRect(rect, paint);
-                            break;
-                        case 1:
-                            canvas.drawOval(rect, paint);
-                            break;
-                        case 2:
-                            drawRhombus(rect, paint, canvas);
-                            break;
-                        default:
-                    }
-                }
+            }else{
+                RectF rect=new RectF(0,0,width,height);
+                drawCard(card,canvas,rect);
             }
             if (judged) {
                 if (correct)
@@ -179,11 +192,6 @@ public class CardView extends View{
                 this.setBackgroundColor(Color.BLUE);
             else
                 this.setBackgroundColor(Color.WHITE);
-            paint.setColor(Color.YELLOW);
-            canvas.drawRect(10, 10, this.getWidth() - 10, this.getHeight() - 10, paint);
-            paint.setColor(Color.RED);
-            paint.setStyle(Paint.Style.STROKE);
-            canvas.drawCircle(this.getWidth() / 2, this.getHeight() / 2, this.getWidth() / 2 - 10, paint);
         }
 
     }

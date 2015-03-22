@@ -1,6 +1,8 @@
 package x.lyx.setmultijoueurs;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -52,7 +54,8 @@ public class MainActivity extends Activity {
 
         public void run()
         {
-            scoreboard.rightSet = cardSet;
+            if (cardSet != null)
+                scoreboard.rightSet = cardSet;
             scoreboard.invalidate();
         }
     }
@@ -75,17 +78,20 @@ public class MainActivity extends Activity {
 
         public void run()
         {
-            if(cards.size()!=0){
+            if(cards.size() != 0){
                 for (CardView v : views){
                     v.setCard(cards.poll());
                     v.invalidate();
                 }
             }
             else{
-                for(CardView v:views){
+                for(CardView v : views){
                     v.setCard(nextCard());
                     v.invalidate();
                 }
+            }
+            if(!netMode){
+                haveCardSet();
             }
         }
     }
@@ -124,14 +130,33 @@ public class MainActivity extends Activity {
 
         CardSet set;
         Socket client;
-
+        String message;
         public ClientSubmission(CardSet set, Socket s){
             this.set = set;
             this.client = s;
+            this.message = "N";
         }
 
+        public ClientSubmission(String str, Socket s){
+            this.message = str;
+            this.client = s;
+        }
         public void run(){
             StringBuilder s = new StringBuilder();
+            if(message != "N"){
+                s.append(message);
+                try
+                {
+                    System.out.println(s);
+                    PrintWriter output = new PrintWriter(client.getOutputStream(), true);
+                    output.println(s);
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+                return;
+            }
             s.append('S');
             for (CardView v:set.getCardView()){
                 s.append(' ');
@@ -147,7 +172,7 @@ public class MainActivity extends Activity {
             }
             catch (IOException e)
             {
-                System.out.println(e);
+                e.printStackTrace();
             }
         }
 
@@ -216,7 +241,7 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
             try {
-                client = new Socket("192.168.1.1", 8888);
+                client = new Socket("10.0.2.2", 8888);
                 socket = client;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -233,6 +258,9 @@ public class MainActivity extends Activity {
                         input.read();
                         String[] s;
                         switch (task){
+                            case 'M':
+                                viewChange.post(meltViews);
+                                break;
                             case 'V':
                                 views = new LinkedList<CardView>();
                                 cards = new LinkedList<Card>();
@@ -267,8 +295,17 @@ public class MainActivity extends Activity {
                                 break;
                             case 'E':
                                 active = false;
+                                input.close();
                                 client.close();
-                                break;
+                                netMode = false;
+                                viewChange.post(meltViews);
+                                numberViews = 12;
+                                replaceCards(allViews);
+                                invalidateOptionsMenu();
+                                score = 0;
+                                scoreboard.rightSet = null;
+                                CardView.startTime = System.currentTimeMillis();
+                                return;
                         }
                     }
                 }
@@ -294,7 +331,7 @@ public class MainActivity extends Activity {
     public int score = 0;
     Handler viewChange;  //Handler for all calls from other threads
     Socket socket = new Socket();
-    LooperSocket looper=new LooperSocket();
+    LooperSocket looper = new LooperSocket();
 
     LinkedList<CardView> selectedCard = new LinkedList<CardView>();
     LinkedList<CardView> allViews = new LinkedList<CardView>();
@@ -322,7 +359,7 @@ public class MainActivity extends Activity {
         layout = (TableLayout)findViewById(R.id.Table);
         CardView cardView;
         int count = 0;
-        for (int i = 0 ; i < layout.getChildCount()-1; i++)
+        for (int i = 0 ; i < layout.getChildCount(); i++)
         {
             TableRow row = (TableRow)layout.getChildAt(i);
             for (int j = 0 ; j < row.getChildCount() ; j++)
@@ -342,16 +379,18 @@ public class MainActivity extends Activity {
                 new ClientReceive(socket).start();
             }
             catch (Exception e){
-                System.out.println(e);
                 e.printStackTrace();
             }
         }
         else
         {
             initCards();  //Create all 81 cards
-            System.out.println(allViews.size());
+            System.out.println(numberViews);
+            allViews.removeLast();
+            allViews.removeLast();
+            allViews.removeLast();
+            allViews.removeLast();
             replaceCards(allViews);  //Now we have a full list of CardView
-            haveCardSet();
         }
 
         cardView = (CardView)findViewById(R.id.Card16);
@@ -371,11 +410,19 @@ public class MainActivity extends Activity {
 //        cardView.invalidate();
     }
 
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        looper.handler.post(new ClientSubmission("E", socket));
+    }
 
+    @TargetApi(Build.VERSION_CODES.CUPCAKE)
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem item = menu.getItem(0);
+        item.setTitle(R.string.multiplayer);
         return true;
     }
 
@@ -387,10 +434,42 @@ public class MainActivity extends Activity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.multimode) {
+            numberViews = 12;
+            score = 0;
+            scoreboard.rightSet = null;
+            CardView.startTime = System.currentTimeMillis();
+            viewChange.post(meltViews);
+            netMode =! netMode;
+            if(netMode){
+                item.setTitle(R.string.solo);
+                try
+                {
+                    new ClientReceive(socket).start();
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            else{
+                item.setTitle(R.string.multiplayer);
+                replaceCards(allViews);
+                looper.handler.post(new ClientSubmission("E", socket));
+            }
             return true;
         }
-
+        if(id == R.id.restart){
+            if(netMode) {
+                looper.handler.post(new ClientSubmission("E", socket));
+            }else{
+                numberViews = 12;
+                viewChange.post(meltViews);
+                replaceCards(allViews);
+                score = 0;
+                scoreboard.rightSet = null;
+                CardView.startTime = System.currentTimeMillis();
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -430,19 +509,19 @@ public class MainActivity extends Activity {
             return (new Card(c));
         }
         else{
+            System.out.print("NEW");
             initCards();
-            int c=cards.getFirst();
-            cards.remove();
-            boolean f=true;
-            while(f) {
-                f=false;
+            int find=0,c=0;
+            while(find<numberViews){
+                c=cards.get(find);
+                find++;
                 for (int i = 0; i < numberViews; i++) {
-                    if (!allViews.get(i).getChosen() && allViews.get(i).getCard().hashCode() == c) {
-                        f = true;
+                    if (allViews.get(i).getCard().hashCode() == c) {
+                        cards.remove(find-1);
+                        find--;
                         break;
                     }
                 }
-                if(f){c=cards.getFirst();cards.remove();}
             }
             return(new Card(c));
         }
@@ -473,7 +552,6 @@ public class MainActivity extends Activity {
                 setMask(true, s);
                 if(numberViews==12){
                     replaceCards(s.getCardView(), greenTime);
-                    haveCardSet();
                 }else{
                     numberViews=12;
                     LinkedList<CardView> cardView = new LinkedList<CardView>();
@@ -490,7 +568,6 @@ public class MainActivity extends Activity {
                     d.setCard(null);e.setCard(null);f.setCard(null);
                     d.invalidate();e.invalidate();f.invalidate();
                     replaceCards(cardView, replaceCard, greenTime);
-                    haveCardSet();
                 }
                 updateScore(cardSet);
             }
@@ -502,13 +579,13 @@ public class MainActivity extends Activity {
         }
         else{
             score += redScore;
-            updateScore(cardSet);
+            updateScore(null);
             setMask(false,s);
             if (netMode){
                 for(CardView cv : allViews){
                     cv.setFroze(true);
                 }
-
+                looper.handler.post(new ClientSubmission("F",socket));
             }else {
                 undoMask(s, redTime);
             }
@@ -535,7 +612,6 @@ public class MainActivity extends Activity {
                 break;
         }
         if(numberViews==12 && !findSet){
-            numberViews=15;
             CardView cardView;
             TableRow row = (TableRow)layout.getChildAt(layout.getChildCount()-1);
             for (int j = 0 ; j < row.getChildCount()-1; j++)
@@ -545,6 +621,7 @@ public class MainActivity extends Activity {
                 allViews.add(cardView);
                 cardView.setCard(nextCard());
                 cardView.invalidate();
+                numberViews++;
             }
         }
     }
