@@ -4,4 +4,6 @@
         android:orderInCategory="100" android:showAsAction="never" />
     <item android:id="@+id/restart" android:title="@string/restart"
         android:orderInCategory="100" android:showAsAction="never" />
+    <item android:id="@+id/scoreboard" android:title="@string/scoreboard"
+        android:orderInCategory="100" android:showAsAction="never" />
 </menu>

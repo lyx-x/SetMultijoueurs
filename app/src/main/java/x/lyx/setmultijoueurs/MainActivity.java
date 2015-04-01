@@ -2,6 +2,9 @@ package x.lyx.setmultijoueurs;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -241,7 +245,7 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
             try {
-                client = new Socket("192.168.1.2", 8888);
+                client = new Socket("192.168.1.5", 8888);
                 socket = client;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -311,6 +315,16 @@ public class MainActivity extends Activity {
                                 scoreboard.rightSet = null;
                                 CardView.startTime = System.currentTimeMillis();
                                 return;
+                            case 'B':
+                                clients=new LinkedList<String>();
+                                scores=new LinkedList<String>();
+                                s = input.readLine().split(" ");
+                                for (int i = 0 ; i < s.length/2 ; i++) {
+                                    clients.add(s[i]);
+                                    scores.add(s[i+1]);
+                                }
+                                hasScore=true;
+                                break;
                         }
                     }
                 }
@@ -341,7 +355,9 @@ public class MainActivity extends Activity {
     LinkedList<CardView> selectedCard = new LinkedList<CardView>();
     LinkedList<CardView> allViews = new LinkedList<CardView>();
     LinkedList<Integer> cards = new LinkedList<Integer>();  //All 81 cards
-
+    LinkedList<String> scores=new LinkedList<String>();
+    LinkedList<String> clients=new LinkedList<String>();
+    boolean hasScore;
 
     int numberViews = 12;  //Number of cards displayed
     long greenTime = 500;  //Duration after a set is found
@@ -485,6 +501,32 @@ public class MainActivity extends Activity {
                 CardView.startTime = System.currentTimeMillis();
             }
         }
+        if(id == R.id.scoreboard){
+                AlertDialog builder = new AlertDialog.Builder(this).create();
+                builder.setTitle(R.string.scoreboard);
+                if(netMode) {
+                    looper.handler.post(new ClientSubmission("B",socket));
+                    hasScore=false;
+                    while(!hasScore){
+                    }
+                    for (String score : scores) {
+                        String s = "";
+                        s = clients.getFirst();
+                        clients.remove();
+                        s = s + " : "+score;
+                        builder.setMessage(s);
+                    }
+                }else{
+                    builder.setMessage("You are in solo mode!");
+                }
+                builder.setButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                        
+                    }
+                });
+                builder.show();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -526,18 +568,17 @@ public class MainActivity extends Activity {
         else{
             System.out.print("NEW");
             initCards();
-            int find=0,c=0;
-            while(find<numberViews){
-                c=cards.get(find);
-                find++;
-                for (int i = 0; i < numberViews; i++) {
-                    if (allViews.get(i).getCard().hashCode() == c) {
-                        cards.remove(find-1);
-                        find--;
-                        break;
-                    }
+            for (int i = 0; i < numberViews; i++) {
+                int c=allViews.get(i).getCard().hashCode();
+                int j=0;
+                while(j<cards.size() && cards.get(j)!=c){
+                    j++;
                 }
+                if(j<cards.size())
+                    cards.remove(j);
             }
+            int c=cards.getFirst();
+            cards.remove();
             return(new Card(c));
         }
     }

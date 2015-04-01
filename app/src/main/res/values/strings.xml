@@ -7,4 +7,6 @@
     <string name="solo">Solo Mode</string>
     <string name="exit">Exit</string>
     <string name="restart">Restart</string>
+    <string name="scoreboard">ScoreBoard</string>
+    <string name="cancel">Cancel</string>
 </resources>
