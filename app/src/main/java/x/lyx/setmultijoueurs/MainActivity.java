@@ -154,9 +154,13 @@ public class MainActivity extends Activity {
             builder= new AlertDialog.Builder(a).create();
             builder.setTitle(R.string.scoreboard);
             if(score){
+                StringBuilder sb = new StringBuilder();
                 for (String s : l) {
-                    builder.setMessage(s);
+                    sb.append(s);
+                    System.out.println(s);
+                    sb.append('\n');
                 }
+                builder.setMessage(sb.toString());
             }
             else{
                 builder.setMessage(message);
@@ -287,7 +291,7 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
             try {
-                client = new Socket("192.168.1.1", 8888);
+                client = new Socket("10.0.2.2", 8888);
                 socket = client;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -359,7 +363,7 @@ public class MainActivity extends Activity {
                                 CardView.startTime = System.currentTimeMillis();
                                 return;
                             case 'B':
-                                s = input.readLine().split("\n");
+                                s = input.readLine().split("b");
                                 scores = new LinkedList<String>();
                                 for(int i = 0 ; i < s.length ; i++){
                                     System.out.println(s[i]);
