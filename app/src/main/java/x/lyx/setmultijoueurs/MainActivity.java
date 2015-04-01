@@ -361,6 +361,7 @@ public class MainActivity extends Activity {
                                 score = 0;
                                 scoreboard.rightSet = null;
                                 CardView.startTime = System.currentTimeMillis();
+                                System.out.println("Out");
                                 return;
                             case 'B':
                                 s = input.readLine().split("b");
@@ -376,6 +377,7 @@ public class MainActivity extends Activity {
                 }
                 catch (Exception e){
                     e.printStackTrace();
+                    return;
                 }
             }
         }
