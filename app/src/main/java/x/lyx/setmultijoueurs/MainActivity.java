@@ -359,9 +359,10 @@ public class MainActivity extends Activity {
                                 CardView.startTime = System.currentTimeMillis();
                                 return;
                             case 'B':
-                                s = input.readLine().split("\t");
+                                s = input.readLine().split("\n");
                                 scores = new LinkedList<String>();
                                 for(int i = 0 ; i < s.length ; i++){
+                                    System.out.println(s[i]);
                                     scores.add(s[i]);
                                 }
                                 viewChange.post(new Dialog(a, scores));
