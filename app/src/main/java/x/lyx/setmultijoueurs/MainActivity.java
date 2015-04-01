@@ -246,7 +246,7 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
             try {
-                client = new Socket("192.168.1.2", 8888);
+                client = new Socket(String.valueOf(R.string.ip), 8888);
                 socket = client;
             } catch (IOException e) {
                 e.printStackTrace();
