@@ -130,6 +130,41 @@ public class MainActivity extends Activity {
         }
     }
 
+    class Dialog implements Runnable{
+        AlertDialog builder;
+        String message;
+        Activity a;
+        LinkedList<String> l;
+        Boolean score=false;
+        public Dialog(Activity a,String s){
+            this.message = s;
+            this.a = a;
+            score=false;
+        }
+        public Dialog(Activity a,LinkedList<String> l){
+            this.a = a;
+            this.l = l;
+            score = true;
+        }
+        public void run(){
+            builder= new AlertDialog.Builder(a).create();
+            builder.setTitle(R.string.scoreboard);
+            if(score){
+                for (String s : l) {
+                    builder.setMessage(s);
+                }
+            }else{
+                builder.setMessage(message);
+            }
+            builder.setButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog
+                }
+            });
+            builder.show();
+        }
+    }
+
     class ClientSubmission implements Runnable{
 
         CardSet set;
@@ -238,9 +273,10 @@ public class MainActivity extends Activity {
         Socket client;
         LinkedList<CardView> views;
         LinkedList<Card> cards;
-
-        public ClientReceive(Socket s){
+        Activity a;
+        public ClientReceive(Activity a, Socket s){
             this.client = s;
+            this.a=a;
         }
 
         @Override
@@ -318,14 +354,12 @@ public class MainActivity extends Activity {
                                 CardView.startTime = System.currentTimeMillis();
                                 return;
                             case 'B':
-                                clients=new LinkedList<String>();
+                                s = input.readLine().split("\t");
                                 scores=new LinkedList<String>();
-                                s = input.readLine().split(" ");
-                                for (int i = 0 ; i < s.length/2 ; i++) {
-                                    clients.add(s[i]);
-                                    scores.add(s[i+1]);
+                                for(int i=0;i<s.length;i++){
+                                    scores.add(s[i]);
                                 }
-                                hasScore=true;
+                                viewChange.post(new Dialog(a,scores));
                                 break;
                         }
                     }
@@ -399,7 +433,7 @@ public class MainActivity extends Activity {
         {
             try
             {
-                new ClientReceive(socket).start();
+                new ClientReceive(this,socket).start();
             }
             catch (Exception e){
                 e.printStackTrace();
@@ -473,7 +507,7 @@ public class MainActivity extends Activity {
                 item.setTitle(R.string.solo);
                 try
                 {
-                    new ClientReceive(socket).start();
+                    new ClientReceive(this,socket).start();
                 }
                 catch (Exception e){
                     e.printStackTrace();
@@ -504,30 +538,12 @@ public class MainActivity extends Activity {
             }
         }
         if(id == R.id.scoreboard){
-                AlertDialog builder = new AlertDialog.Builder(this).create();
-                builder.setTitle(R.string.scoreboard);
-                if(netMode) {
+                if(netMode){
                     looper.handler.post(new ClientSubmission("B",socket));
-                    hasScore=false;
-                    while(!hasScore){
-                    }
-                    for (String score : scores) {
-                        String s = "";
-                        s = clients.getFirst();
-                        clients.remove();
-                        s = s + " : "+score;
-                        builder.setMessage(s);
-                    }
                 }else{
-                    builder.setMessage("You are in solo mode!");
+                    Dialog d = new Dialog(this,"You are in solo mode!");
+                    viewChange.post(d);
                 }
-                builder.setButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
-                        
-                    }
-                });
-                builder.show();
         }
         return super.onOptionsItemSelected(item);
     }
