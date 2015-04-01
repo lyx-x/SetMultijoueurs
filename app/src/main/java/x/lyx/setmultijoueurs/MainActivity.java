@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
 
     class UpdateScore implements Runnable{
 
-        LinkedList<Card> cardSet=new LinkedList<Card>();
+        LinkedList<Card> cardSet = new LinkedList<Card>();
 
         public UpdateScore(LinkedList<Card> c)
         {
@@ -131,6 +131,7 @@ public class MainActivity extends Activity {
         CardSet set;
         Socket client;
         String message;
+
         public ClientSubmission(CardSet set, Socket s){
             this.set = set;
             this.client = s;
@@ -241,7 +242,7 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
             try {
-                client = new Socket("192.168.1.2", 8888);
+                client = new Socket("192.168.1.1", 8888);
                 socket = client;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -292,6 +293,7 @@ public class MainActivity extends Activity {
                                     cards.add(new Card(Integer.parseInt(s[i])));
                                 }
                                 updateScore(cards);
+                                looper.handler.post(new ClientSubmission("N " + score, socket));
                                 break;
                             case 'E':
                                 active = false;
@@ -590,6 +592,7 @@ public class MainActivity extends Activity {
             {
                 setMask(true, s);
                 looper.handler.post(new ClientSubmission(s, socket));
+                looper.handler.post(new ClientSubmission("N " + score, socket));
             }
         }
         else{
@@ -601,6 +604,7 @@ public class MainActivity extends Activity {
                     cv.setFroze(true);
                 }
                 looper.handler.post(new ClientSubmission("F",socket));
+                looper.handler.post(new ClientSubmission("N " + score, socket));
             }else {
                 undoMask(s, redTime);
             }
