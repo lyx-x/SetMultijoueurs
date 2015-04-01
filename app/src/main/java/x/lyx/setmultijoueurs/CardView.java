@@ -89,9 +89,9 @@ public class CardView extends View{
     }
 
     public void drawCard(Card card,Canvas canvas, RectF rect){
-        float height=rect.height();
-        float width=rect.width();
-        float x=width/5;
+        float height = rect.height();
+        float width = rect.width();
+        float x = width / 5;
         float y = height / (2 * card.number + 3);
         float h = height / 6;
         float w = width - width / 5 * 2;
@@ -155,16 +155,16 @@ public class CardView extends View{
                 {
                     int i=0;
                     for(Card card : rightSet){
-                        RectF rect=new RectF(width/3*i+width/30,height/2,width/3*(i+1)-width/30,height);
-                        drawCard(card,canvas,rect);
+                        RectF rect = new RectF(width / 3 * i + width / 30, height / 2, width / 3 * (i + 1) - width / 30, height);
+                        drawCard(card, canvas, rect);
                         i++;
                     }
                     //draw 3 cards
                 }
                 return;
             }else{
-                RectF rect=new RectF(0,0,width,height);
-                drawCard(card,canvas,rect);
+                RectF rect = new RectF(0, 0, width, height);
+                drawCard(card, canvas, rect);
             }
             if (judged) {
                 if (correct)

@@ -131,21 +131,25 @@ public class MainActivity extends Activity {
     }
 
     class Dialog implements Runnable{
+
         AlertDialog builder;
         String message;
         Activity a;
         LinkedList<String> l;
-        Boolean score=false;
-        public Dialog(Activity a,String s){
+        Boolean score = false;
+
+        public Dialog(Activity a, String s){
             this.message = s;
             this.a = a;
-            score=false;
+            this.score = false;
         }
-        public Dialog(Activity a,LinkedList<String> l){
+
+        public Dialog(Activity a, LinkedList<String> l){
             this.a = a;
             this.l = l;
-            score = true;
+            this.score = true;
         }
+
         public void run(){
             builder= new AlertDialog.Builder(a).create();
             builder.setTitle(R.string.scoreboard);
@@ -153,7 +157,8 @@ public class MainActivity extends Activity {
                 for (String s : l) {
                     builder.setMessage(s);
                 }
-            }else{
+            }
+            else{
                 builder.setMessage(message);
             }
             builder.setButton("OK", new DialogInterface.OnClickListener() {
@@ -355,11 +360,11 @@ public class MainActivity extends Activity {
                                 return;
                             case 'B':
                                 s = input.readLine().split("\t");
-                                scores=new LinkedList<String>();
-                                for(int i=0;i<s.length;i++){
+                                scores = new LinkedList<String>();
+                                for(int i = 0 ; i < s.length ; i++){
                                     scores.add(s[i]);
                                 }
-                                viewChange.post(new Dialog(a,scores));
+                                viewChange.post(new Dialog(a, scores));
                                 break;
                         }
                     }
@@ -392,8 +397,6 @@ public class MainActivity extends Activity {
     LinkedList<CardView> allViews = new LinkedList<CardView>();
     LinkedList<Integer> cards = new LinkedList<Integer>();  //All 81 cards
     LinkedList<String> scores=new LinkedList<String>();
-    LinkedList<String> clients=new LinkedList<String>();
-    boolean hasScore;
 
     int numberViews = 12;  //Number of cards displayed
     long greenTime = 500;  //Duration after a set is found
@@ -423,8 +426,7 @@ public class MainActivity extends Activity {
             {
                 count++;
                 cardView = (CardView)row.getChildAt(j);
-                cardView.id=i*row.getChildCount()+j;
-
+                cardView.id = i * row.getChildCount() + j;
                 allViews.add(cardView);
             }
         }
@@ -451,7 +453,7 @@ public class MainActivity extends Activity {
         }
 
         cardView = (CardView)findViewById(R.id.Card16);
-        cardView.special=true;
+        cardView.special = true;
         scoreboard = cardView;
         new LoopThread(new UpdateScore(null), 500).start();
 
@@ -502,7 +504,7 @@ public class MainActivity extends Activity {
             scoreboard.rightSet = null;
             CardView.startTime = System.currentTimeMillis();
             viewChange.post(meltViews);
-            netMode =! netMode;
+            netMode = !netMode;
             if(netMode){
                 item.setTitle(R.string.solo);
                 try
@@ -538,12 +540,12 @@ public class MainActivity extends Activity {
             }
         }
         if(id == R.id.scoreboard){
-                if(netMode){
-                    looper.handler.post(new ClientSubmission("B",socket));
-                }else{
-                    Dialog d = new Dialog(this,"You are in solo mode!");
-                    viewChange.post(d);
-                }
+            if(netMode){
+                looper.handler.post(new ClientSubmission("B", socket));
+            }else{
+                Dialog d = new Dialog(this,"You are in solo mode!");
+                viewChange.post(d);
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -586,16 +588,16 @@ public class MainActivity extends Activity {
         else{
             System.out.print("NEW");
             initCards();
-            for (int i = 0; i < numberViews; i++) {
-                int c=allViews.get(i).getCard().hashCode();
-                int j=0;
-                while(j<cards.size() && cards.get(j)!=c){
+            for (int i = 0 ; i < numberViews ; i++) {
+                int c = allViews.get(i).getCard().hashCode();
+                int j = 0;
+                while(j < cards.size() && cards.get(j) != c){
                     j++;
                 }
-                if(j<cards.size())
+                if(j < cards.size())
                     cards.remove(j);
             }
-            int c=cards.getFirst();
+            int c = cards.getFirst();
             cards.remove();
             return(new Card(c));
         }
@@ -624,23 +626,33 @@ public class MainActivity extends Activity {
             if (!netMode){
                 score += greenScore;
                 setMask(true, s);
-                if(numberViews==12){
+                if(numberViews == 12){
                     replaceCards(s.getCardView(), greenTime);
                 }else{
-                    numberViews=12;
+                    numberViews = 12;
                     LinkedList<CardView> cardView = new LinkedList<CardView>();
-                    LinkedList<Card> replaceCard=new LinkedList<Card>();
-                    if (a.id<12){cardView.add(a);}
-                    if (b.id<12){cardView.add(b);}
-                    if (c.id<12){cardView.add(c);}
-                    CardView d=allViews.removeLast();
-                    CardView e=allViews.removeLast();
-                    CardView f=allViews.removeLast();
-                    if(!d.getChosen()){replaceCard.add(d.getCard());}
-                    if(!e.getChosen()){replaceCard.add(e.getCard());}
-                    if(!f.getChosen()){replaceCard.add(f.getCard());}
-                    d.setCard(null);e.setCard(null);f.setCard(null);
-                    d.invalidate();e.invalidate();f.invalidate();
+                    LinkedList<Card> replaceCard = new LinkedList<Card>();
+                    if (a.id < 12)
+                        cardView.add(a);
+                    if (b.id < 12)
+                        cardView.add(b);
+                    if (c.id < 12)
+                        cardView.add(c);
+                    CardView d = allViews.removeLast();
+                    CardView e = allViews.removeLast();
+                    CardView f = allViews.removeLast();
+                    if(!d.getChosen())
+                        replaceCard.add(d.getCard());
+                    if(!e.getChosen())
+                        replaceCard.add(e.getCard());
+                    if(!f.getChosen())
+                        replaceCard.add(f.getCard());
+                    d.setCard(null);
+                    e.setCard(null);
+                    f.setCard(null);
+                    d.invalidate();
+                    e.invalidate();
+                    f.invalidate();
                     replaceCards(cardView, replaceCard, greenTime);
                 }
                 updateScore(cardSet);
@@ -655,12 +667,12 @@ public class MainActivity extends Activity {
         else{
             score += redScore;
             updateScore(null);
-            setMask(false,s);
+            setMask(false, s);
             if (netMode){
                 for(CardView cv : allViews){
                     cv.setFroze(true);
                 }
-                looper.handler.post(new ClientSubmission("F",socket));
+                looper.handler.post(new ClientSubmission("F", socket));
                 looper.handler.post(new ClientSubmission("N " + score, socket));
             }else {
                 undoMask(s, redTime);
@@ -671,13 +683,13 @@ public class MainActivity extends Activity {
     public void haveCardSet(){
         CardSet s;
         boolean findSet = false;
-        for (int i = 0; i < numberViews; i++) {
-            for (int j = i+1; j < numberViews; j++) {
-                for (int k = j+1; k < numberViews; k++) {
+        for (int i = 0 ; i < numberViews ; i++) {
+            for (int j = i + 1 ; j < numberViews ; j++) {
+                for (int k = j + 1 ; k < numberViews ; k++) {
                     s = new CardSet(allViews.get(i), allViews.get(j), allViews.get(k));
                     if (s.isSet()){
                         findSet = true;
-                        System.out.format("%d %d %d\n",i,j,k);
+                        System.out.format("%d %d %d\n", i, j, k);
                         break;
                     }
                 }
@@ -687,13 +699,13 @@ public class MainActivity extends Activity {
             if(findSet)
                 break;
         }
-        if(numberViews==12 && !findSet){
+        if(numberViews == 12 && !findSet){
             CardView cardView;
-            TableRow row = (TableRow)layout.getChildAt(layout.getChildCount()-1);
-            for (int j = 0 ; j < row.getChildCount()-1; j++)
+            TableRow row = (TableRow)layout.getChildAt(layout.getChildCount() - 1);
+            for (int j = 0 ; j < row.getChildCount() - 1 ; j++)
             {
                 cardView = (CardView)row.getChildAt(j);
-                cardView.id=12+j;
+                cardView.id = 12 + j;
                 allViews.add(cardView);
                 cardView.setCard(nextCard());
                 cardView.invalidate();
