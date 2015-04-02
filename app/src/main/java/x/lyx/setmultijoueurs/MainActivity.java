@@ -151,6 +151,7 @@ public class MainActivity extends Activity {
             this.score = false;
         }
 
+        
         public Dialog(Activity a, LinkedList<String> l){
             this.a = a;
             this.l = l;
