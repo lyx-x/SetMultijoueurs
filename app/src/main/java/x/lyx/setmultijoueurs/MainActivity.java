@@ -151,7 +151,7 @@ public class MainActivity extends Activity {
             this.score = false;
         }
 
-        
+
         public Dialog(Activity a, LinkedList<String> l){
             this.a = a;
             this.l = l;
@@ -162,9 +162,12 @@ public class MainActivity extends Activity {
             builder= new AlertDialog.Builder(a).create();
             builder.setTitle(R.string.scoreboard);
             if(score){
+                StringBuffer str=new StringBuffer();
                 for (String s : l) {
-                    builder.setMessage(s);
+                    str.append(s);
+                    str.append('\n');
                 }
+                builder.setMessage(str);
             }
             else{
                 builder.setMessage(message);
@@ -299,7 +302,7 @@ public class MainActivity extends Activity {
                 socket = client;
             } catch (IOException e) {
                 e.printStackTrace();
-                viewChange.post(new Dialog(a,"Connection failed!"));
+                viewChange.post(new Dialog(a, "Connection failed!"));
                 netMode = false;
                 viewChange.post(meltViews);
                 if(numberViews == 15){
