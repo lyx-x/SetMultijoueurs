@@ -160,8 +160,8 @@ public class MainActivity extends Activity {
 
         public void run(){
             builder= new AlertDialog.Builder(a).create();
-            builder.setTitle(R.string.scoreboard);
             if(score){
+                builder.setTitle("Scoreboard");
                 StringBuffer str=new StringBuffer();
                 for (String s : l) {
                     str.append(s);
@@ -170,6 +170,7 @@ public class MainActivity extends Activity {
                 builder.setMessage(str);
             }
             else{
+                builder.setTitle("Alert");
                 builder.setMessage(message);
             }
             builder.setButton("OK", new DialogInterface.OnClickListener() {
