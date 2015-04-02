@@ -19,15 +19,15 @@ public class CardView extends View{
     public static long startTime = System.currentTimeMillis();
 
     public boolean special = false;
-    public LinkedList<Card> rightSet;
+    public LinkedList<Card> rightSet;   //les trois bonnes cartes à disposer si c'est une cartes spéciale
 
     private Card card;
     private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int[] colors = new int[] {Color.RED, Color.GREEN, Color.BLUE};
     private boolean correct;
-    private boolean chosen = false;
-    private boolean judged = false;
-    private boolean froze = false;
+    private boolean chosen = false;         //si elle est selectionée
+    private boolean judged = false;         //si elle est judgé
+    private boolean froze = false;          //si elle est bloquée(la carte n'est pas bloqué si elle est judgé, mais on ne peut quand même pas choisit cette carte)
 
     OnClickListener choose = new OnClickListener() {
         @Override

@@ -28,6 +28,7 @@ public class MainActivity extends Activity {
 
     class DoMask implements Runnable{
 
+    //Maquer les cartes selectionnées
         boolean judge;
         CardSet set;
 
@@ -49,6 +50,8 @@ public class MainActivity extends Activity {
 
     class UpdateScore implements Runnable{
 
+        //renouveller le score et crée la carte spéciale
+
         LinkedList<Card> cardSet = new LinkedList<Card>();
 
         public UpdateScore(LinkedList<Card> c)
@@ -66,6 +69,7 @@ public class MainActivity extends Activity {
 
     class ReplaceCards implements Runnable{
 
+        //changer les cartes dans la listes views par les cartes dans la liste cards(multi mode) ou par nextcard dans le tas local
         LinkedList<CardView> views;
         LinkedList<Card> cards;
 
@@ -101,6 +105,7 @@ public class MainActivity extends Activity {
     }
 
     class UndoMask implements Runnable{
+        //redémarrer un set de card
 
         CardSet set;
 
@@ -120,6 +125,7 @@ public class MainActivity extends Activity {
     }
 
     class LooperSocket extends Thread{
+        //handler pour traiter les communication avec le serveur
 
         public Handler handler = new Handler();
 
@@ -131,12 +137,13 @@ public class MainActivity extends Activity {
     }
 
     class Dialog implements Runnable{
+        //le scoreboard
 
         AlertDialog builder;
-        String message;
+        String message;         //message à affichier
         Activity a;
-        LinkedList<String> l;
-        Boolean score = false;
+        LinkedList<String> l;   //une liste de message
+        Boolean score = false;  //true en multi mode, false en sole mode
 
         public Dialog(Activity a, String s){
             this.message = s;
@@ -154,13 +161,9 @@ public class MainActivity extends Activity {
             builder= new AlertDialog.Builder(a).create();
             builder.setTitle(R.string.scoreboard);
             if(score){
-                StringBuilder sb = new StringBuilder();
                 for (String s : l) {
-                    sb.append(s);
-                    System.out.println(s);
-                    sb.append('\n');
+                    builder.setMessage(s);
                 }
-                builder.setMessage(sb.toString());
             }
             else{
                 builder.setMessage(message);
@@ -176,14 +179,14 @@ public class MainActivity extends Activity {
 
     class ClientSubmission implements Runnable{
 
-        CardSet set;
+        CardSet set;    //le bon set trouvé
         Socket client;
         String message;
 
         public ClientSubmission(CardSet set, Socket s){
             this.set = set;
             this.client = s;
-            this.message = "N";
+            this.message = "N"; //pas de message, mais un set
         }
 
         public ClientSubmission(String str, Socket s){
@@ -193,7 +196,7 @@ public class MainActivity extends Activity {
         public void run(){
             StringBuilder s = new StringBuilder();
             if(message != "N"){
-                s.append(message);
+                s.append(message);  //si il y a un message, submet le message
                 try
                 {
                     System.out.println(s);
@@ -228,7 +231,7 @@ public class MainActivity extends Activity {
     }
 
     class DelayThread extends Thread{
-
+        //change certain cardviews
         Runnable change;
         long time;
 
@@ -253,12 +256,12 @@ public class MainActivity extends Activity {
 
     }
 
-    class LoopThread extends Thread{
+    class TimeThread extends Thread{
 
         Runnable change;
         long time;
 
-        public LoopThread(Runnable r, long t)
+        public TimeThread(Runnable r, long t)
         {
             this.change = r;
             this.time = t;
@@ -280,8 +283,8 @@ public class MainActivity extends Activity {
     class ClientReceive extends Thread{
 
         Socket client;
-        LinkedList<CardView> views;
-        LinkedList<Card> cards;
+        LinkedList<CardView> views;     //les Views à changer
+        LinkedList<Card> cards;         //les cartes à remplacer
         Activity a;
         public ClientReceive(Activity a, Socket s){
             this.client = s;
@@ -295,6 +298,27 @@ public class MainActivity extends Activity {
                 socket = client;
             } catch (IOException e) {
                 e.printStackTrace();
+                viewChange.post(new Dialog(a,"Connection failed!"));
+                netMode = false;
+                viewChange.post(meltViews);
+                if(numberViews == 15){
+                    numberViews = 12;
+                    CardView a = allViews.removeLast();
+                    CardView b = allViews.removeLast();
+                    CardView c = allViews.removeLast();
+                    a.setCard(null);
+                    b.setCard(null);
+                    c.setCard(null);
+                    a.invalidate();
+                    b.invalidate();
+                    c.invalidate();
+                }
+                replaceCards(allViews);
+                invalidateOptionsMenu();
+                score = 0;
+                scoreboard.rightSet = null;
+                CardView.startTime = System.currentTimeMillis();
+                return;
             }
             BufferedReader input;
             boolean active = true;
@@ -352,9 +376,15 @@ public class MainActivity extends Activity {
                                 viewChange.post(meltViews);
                                 if(numberViews == 15){
                                     numberViews = 12;
-                                    allViews.removeLast();
-                                    allViews.removeLast();
-                                    allViews.removeLast();
+                                    CardView a = allViews.removeLast();
+                                    CardView b = allViews.removeLast();
+                                    CardView c = allViews.removeLast();
+                                    a.setCard(null);
+                                    b.setCard(null);
+                                    c.setCard(null);
+                                    a.invalidate();
+                                    b.invalidate();
+                                    c.invalidate();
                                 }
                                 replaceCards(allViews);
                                 invalidateOptionsMenu();
@@ -376,6 +406,21 @@ public class MainActivity extends Activity {
                 }
                 catch (Exception e){
                     e.printStackTrace();
+                    active = false;
+                    netMode = false;
+                    viewChange.post(meltViews);
+                    if(numberViews == 15){
+                        numberViews = 12;
+                        allViews.removeLast();
+                        allViews.removeLast();
+                        allViews.removeLast();
+                    }
+                    replaceCards(allViews);
+                    invalidateOptionsMenu();
+                    score = 0;
+                    scoreboard.rightSet = null;
+                    CardView.startTime = System.currentTimeMillis();
+                    return;
                 }
             }
         }
@@ -386,7 +431,7 @@ public class MainActivity extends Activity {
         public void run() {
             for (CardView v : allViews) {
                 if (v.getChosen())
-                    removeCard(v);
+                    removeCard(v);      //faire sortir cette carte dans le liste selectedCard
                 v.restart();
                 v.invalidate();
             }
@@ -394,12 +439,12 @@ public class MainActivity extends Activity {
     };
 
     public int score = 0;
-    Handler viewChange;  //Handler for all calls from other threads
+    Handler viewChange;  //Handler for all calls from other threads en mode solo
     Socket socket = new Socket();
-    LooperSocket looper = new LooperSocket();
+    LooperSocket looper = new LooperSocket();   //handler for all calls from other threads en mode multiple
 
-    LinkedList<CardView> selectedCard = new LinkedList<CardView>();
-    LinkedList<CardView> allViews = new LinkedList<CardView>();
+    LinkedList<CardView> selectedCard = new LinkedList<CardView>(); //les cartes selectionées
+    LinkedList<CardView> allViews = new LinkedList<CardView>(); //les cartesviews (12 ou 15 selon l'existance du set)
     LinkedList<Integer> cards = new LinkedList<Integer>();  //All 81 cards
     LinkedList<String> scores=new LinkedList<String>();
 
@@ -411,7 +456,7 @@ public class MainActivity extends Activity {
     boolean netMode = false; //false for one player, true for multi players
     TableLayout layout;
 
-    CardView scoreboard;
+    CardView scoreboard;    //la carte spéciale
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -460,7 +505,7 @@ public class MainActivity extends Activity {
         cardView = (CardView)findViewById(R.id.Card16);
         cardView.special = true;
         scoreboard = cardView;
-        new LoopThread(new UpdateScore(null), 500).start();
+        new TimeThread(new UpdateScore(null), 500).start();
 
         //Test case
 //        cardView = (CardView)findViewById(R.id.Card01);
@@ -476,8 +521,11 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy(){
+        //exit en laissant le message 'End' à serveur
+
         super.onDestroy();
-        looper.handler.post(new ClientSubmission("E", socket));
+        if(netMode)
+            looper.handler.post(new ClientSubmission("E", socket));
     }
 
     @TargetApi(Build.VERSION_CODES.CUPCAKE)
@@ -501,9 +549,15 @@ public class MainActivity extends Activity {
         if (id == R.id.multimode) {
             if(numberViews == 15){
                 numberViews = 12;
-                allViews.removeLast();
-                allViews.removeLast();
-                allViews.removeLast();
+                CardView a = allViews.removeLast();
+                CardView b = allViews.removeLast();
+                CardView c = allViews.removeLast();
+                a.setCard(null);
+                b.setCard(null);
+                c.setCard(null);
+                a.invalidate();
+                b.invalidate();
+                c.invalidate();
             }
             score = 0;
             scoreboard.rightSet = null;
@@ -511,7 +565,7 @@ public class MainActivity extends Activity {
             viewChange.post(meltViews);
             netMode = !netMode;
             if(netMode){
-                item.setTitle(R.string.solo);
+                item.setTitle(R.string.solo);   //changer le settings
                 try
                 {
                     new ClientReceive(this,socket).start();
@@ -555,11 +609,6 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    void removeSelectedCard(CardView cv){
-        int i=selectedCard.indexOf(cv);
-        selectedCard.remove(i);
-
-    }
     void initCards(){
         int[][] temp = new int[81][2];
         Random rand = new Random();
@@ -585,6 +634,7 @@ public class MainActivity extends Activity {
     }
 
     Card nextCard(){
+    //prendre la cartes suivante, et réinitialiser la liste de card s'il n'y a plus de cartes dans la liste
         if (!cards.isEmpty()){
             int c = cards.getFirst();
             cards.remove();
@@ -635,8 +685,8 @@ public class MainActivity extends Activity {
                     replaceCards(s.getCardView(), greenTime);
                 }else{
                     numberViews = 12;
-                    LinkedList<CardView> cardView = new LinkedList<CardView>();
-                    LinkedList<Card> replaceCard = new LinkedList<Card>();
+                    LinkedList<CardView> cardView = new LinkedList<CardView>(); //les views à remplacer
+                    LinkedList<Card> replaceCard = new LinkedList<Card>();  //les nouvelles cartes
                     if (a.id < 12)
                         cardView.add(a);
                     if (b.id < 12)
